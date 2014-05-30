@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,8 +44,8 @@ public class Orienteering {
         mandatoryPoints = new ArrayList<Point>();
        // BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         BufferedReader reader = new BufferedReader(
-                new FileReader("C:\\Users\\Yuri\\Documents\\NetBeansProjects\\wap\\build\\classes\\"
-                        + "example3.txt"));
+                new FileReader("C:\\Documents and Settings\\Administrator\\My Documents\\NetBeansProjects\\"
+                        + "example5.txt"));
 
         String line = reader.readLine();
         String[] params = line.split(" ");
@@ -124,16 +125,36 @@ public class Orienteering {
     private int getDistance() {
         if(!this.connected)
             return -1;
-        int R = mandatoryPoints.size();
-        ImmutableQueue<Integer> wholeCandidate = new ImmutableQueue<Integer>();
-        for(int i = 0; i < R; i++){
-            wholeCandidate = wholeCandidate.enqueue(i);
-        }
-        Stack<State> stack = new Stack<State>();
-        
-        return 0;
+//        int R = mandatoryPoints.size();
+//        ImmutableQueue<Integer> wholeCandidate = new ImmutableQueue<Integer>();
+//        for(int i = 0; i < R; i++){
+//            wholeCandidate = wholeCandidate.enqueue(i);
+//        }
+//        Stack<State> stack = new Stack<State>();
+//        
+        permutation(mandatoryPoints,0);
+        return min;
     }
-    
+    int min = Integer.MAX_VALUE;
+    int cur = 0;
+    private void permutation(List<Point> mPoints, int begin){
+        if(begin==mPoints.size()){
+            int dis = getDistance(begin);
+            cur+=dis;
+            min = Math.min(min, cur);
+            cur-=dis;
+        } else{
+            for(int i = begin; i<mPoints.size(); i++){
+                Collections.swap(mPoints, begin, i);
+                int dis = getDistance(begin);
+                cur += dis;
+                if(cur < min)
+                    permutation(mPoints,begin+1);
+                Collections.swap(mPoints, begin, i);
+                cur -= dis;
+            }
+        }
+    }
     /**
      * Using A star to detect nearest distance between tow points.
      * @param outPoint
@@ -220,6 +241,24 @@ public class Orienteering {
 
     private int calH(Point p,Point g) {
         return Math.abs(p.getX()-g.getX())+Math.abs(p.getY()-g.getY());
+    }
+
+    private int getDistance(int index) {
+        Point prevPoint ;
+        Point curPoint;
+        if(index == 0){
+            prevPoint = start;
+            if(mandatoryPoints.isEmpty())
+                curPoint = goal;
+            else
+                curPoint = mandatoryPoints.get(index);
+        }else if(index == mandatoryPoints.size()){
+            return distance.get(goal).get(mandatoryPoints.get(index-1));
+        }else{
+            prevPoint = mandatoryPoints.get(index-1);
+            curPoint = mandatoryPoints.get(index);
+        }
+            return distance.get(prevPoint).get(curPoint);
     }
 
     class Path implements Comparable<Path>{

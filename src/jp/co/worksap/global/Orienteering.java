@@ -10,14 +10,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.PriorityQueue;
-import java.util.Scanner;
-import java.util.Stack;
 import static jp.co.worksap.global.Point.Type.*;
 
 /**
- *
+ * Class of finding an shortest path from start to goal and pass all the mandatory points.
  * @author Yuri
  */
 public class Orienteering {
@@ -42,10 +38,10 @@ public class Orienteering {
     private void readInRoadMap() throws IOException {
         distance = new HashMap<Point,Map<Point,Integer>>();
         mandatoryPoints = new ArrayList<Point>();
-       // BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        BufferedReader reader = new BufferedReader(
-                new FileReader("C:\\Documents and Settings\\Administrator\\My Documents\\NetBeansProjects\\"
-                        + "example5.txt"));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+//        BufferedReader reader = new BufferedReader(
+//                new FileReader("C:\\Documents and Settings\\Administrator\\My Documents\\NetBeansProjects\\"
+//                        + "example6.txt"));
 
         String line = reader.readLine();
         String[] params = line.split(" ");
@@ -124,19 +120,19 @@ public class Orienteering {
      */
     private int getDistance() {
         if(!this.connected)
-            return -1;
-//        int R = mandatoryPoints.size();
-//        ImmutableQueue<Integer> wholeCandidate = new ImmutableQueue<Integer>();
-//        for(int i = 0; i < R; i++){
-//            wholeCandidate = wholeCandidate.enqueue(i);
-//        }
-//        Stack<State> stack = new Stack<State>();
-//        
+            return -1;   
         permutation(mandatoryPoints,0);
         return min;
     }
     int min = Integer.MAX_VALUE;
     int cur = 0;
+    
+    /**
+     * Using permutation method for finding minmum distance from start to goal point
+     * pass all the mandatory points with pruning.
+     * @param mPoints
+     * @param begin 
+     */
     private void permutation(List<Point> mPoints, int begin){
         if(begin==mPoints.size()){
             int dis = getDistance(begin);
@@ -207,6 +203,11 @@ public class Orienteering {
         return -1;
     }
 
+    /**
+     * Return all the point's neighbors which are reachable.
+     * @param cp center point
+     * @return reachable neighbors
+     */
     private ArrayList<Point> getReachableNeighbor(Point cp) {
         ArrayList<Point> neighbor = new ArrayList<Point>(4);
         int x = cp.getX();
@@ -239,10 +240,22 @@ public class Orienteering {
         return neighbor;
     }
 
+    /**
+     * Calculate the heuristic value from point p to poing g
+     * @param p start point
+     * @param g goal point
+     * @return 
+     */
     private int calH(Point p,Point g) {
         return Math.abs(p.getX()-g.getX())+Math.abs(p.getY()-g.getY());
     }
 
+    /**
+     * Get the distence between the index-1(th) node and index(th) point inmandatoryPoints.
+     * If index out of boundry it means the start point or goal point.
+     * @param index
+     * @return 
+     */
     private int getDistance(int index) {
         Point prevPoint ;
         Point curPoint;
@@ -261,6 +274,11 @@ public class Orienteering {
             return distance.get(prevPoint).get(curPoint);
     }
 
+    /**
+     * Simulate a point's travel path using ImmutableStack.
+     * Desinged for a star algorithm.
+     * @see ImmutableStack
+     */
     class Path implements Comparable<Path>{
         private Point currentStep;
         private ImmutableStack<Point> path;
@@ -351,39 +369,4 @@ public class Orienteering {
 
     }
     
-    class State {
-        ImmutableStack<Integer> travels = ImmutableStack.EMPTYSTACK;
-        ImmutableQueue<Integer> candidate;
-        int cost;
-        public State(ImmutableStack<Integer> travls, ImmutableQueue<Integer> cand,int cost){
-            this.travels = travls;
-            this.candidate = cand;
-            this.cost = cost;
-        }
-
-        public ImmutableStack<Integer> getTravels() {
-            return travels;
-        }
-
-        public void setTravels(ImmutableStack<Integer> travels) {
-            this.travels = travels;
-        }
-
-        public ImmutableQueue<Integer> getCandidate() {
-            return candidate;
-        }
-
-        public void setCandidate(ImmutableQueue<Integer> candidate) {
-            this.candidate = candidate;
-        }
-
-        public int getCost() {
-            return cost;
-        }
-
-        public void setCost(int cost) {
-            this.cost = cost;
-        }
-        
-    }
 }
